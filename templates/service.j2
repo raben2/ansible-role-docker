@@ -1,0 +1,23 @@
+[Unit]
+Description="Docker_{{ item.name }}"
+After=docker.service
+Requires=docker.service
+Conflicts=shutdown.target reboot.target halt.target
+
+[Service]
+Environment=APP='{{ item.name }}'
+Environment=no_proxy=$noproxy
+ExecStartPre=/bin/docker-compose -f {{ compose_config_path }}/docker-compose.yaml kill $APP
+ExecStartPre=/bin/docker-compose -f {{ compose_config_path }}/docker-compose.yaml rm -f $APP
+ExecStartPre=/bin/docker-compose -f {{ compose_config_path }}/docker-compose.yaml pull $APP
+ExecStart=/bin/docker-compose -f {{ compose_config_path }}/docker-compose.yaml up --force-recreate --no-deps $APP
+ExecStop=/bin/docker-compose -f {{ compose_config_path }}/docker-compose.yaml stop $APP
+Restart=always
+RestartSec=90
+Type=notify
+NotifyAccess=All
+TimeoutStartSec=240
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

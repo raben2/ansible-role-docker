@@ -1,0 +1,39 @@
+version: '2'
+services:
+{% for i in docker_images %}
+ {{ i.name }}:
+    image: {{ docker_registry }}/{{ i.image }}
+{% if i.environment is defined %}
+    environment: 
+{% for env in i.environment %}
+      {{ env }}
+{% endfor %}
+{% endif %}
+{% if i.ports is defined %}
+    ports:
+{% for port in i.ports %}
+     - "{{ port }}:{{ port }}"
+{% endfor %}
+{% endif %}
+{% if i.link is defined %}
+    links:
+{% for link in i.link %}
+     - {{ link }}
+{% endfor %}
+    depends_on: 
+{% for link in i.link %}
+     - {{ link }}
+{% endfor %}
+{% endif %}
+{% if i.volumes is defined %}
+    volumes_from:
+{% for vol in i.volumes %}
+     - {{ vol }}
+{% endfor %}
+{% endif %}
+{% if i.log_gelf is defined %}
+    log_driver: gelf
+    log_opt:
+        gelf-address: "{{ log_transport }}://{{ log_host }}:{{ log_port }}"
+{% endif %}
+{% endfor -%}

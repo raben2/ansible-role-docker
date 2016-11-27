@@ -1,0 +1,62 @@
+- name: create docker certs directory
+  file:
+    recurse: yes
+    owner: root
+    group: docker
+    dest: "/etc/docker/certs.d/{{ docker_registry_url }}"
+    state: directory
+  when:
+    - ("{{ docker_registry_certs }}" != "none")
+- name: upload client certs for docker registry
+  copy:
+    dest: "/etc/docker/certs.d/{{ docker_registry_url }}/{{ item }}"
+    src: "{{ item }}"
+  with_items:
+    - client.cert
+    - client.key
+    - ca.crt
+  when:
+    - ("{{ docker_registry_certs }}" != "none")
+
+- name: create registry config dir
+  file: 
+    dest: /etc/docker/registry
+    state: directory
+    owner: docker
+    mode: 0644
+
+- name: create registry config 
+  template: 
+    dest: /etc/docker/registry/config.yml
+    src: registry.yml.j2
+    owner: docker
+    mode: 0644
+
+- name: create registy configuration dir
+  file:
+    dest: /etc/docker/registry/
+    state: directory
+    mode: 0644
+    owner: docker
+    group: docker
+  when: "{{ create_registry |bool }}"
+
+- name: create registry configuration file
+  template:
+    dest: /etc/docker/registry/config.yml
+    src: registry.yml.j2
+    owner: docker
+    group: docker
+  when: "{{ create_registry |bool }}"
+
+- name: "Startup registry docker container "
+  docker_container:
+    name: registry
+    image: "registry:{{ docker_registry_version }}"
+    restart_policy: always
+    state: started
+    network_mode: host
+    volumes:
+      - '{{/etc/docker/registry:/etc/docker/registry'
+      - '{{ docker_registry_data_dir }}:/registry'
+    hostname: "{{ docker_registry_url }}"

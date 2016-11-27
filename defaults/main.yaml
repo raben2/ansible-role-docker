@@ -1,0 +1,21 @@
+docker_pkg: docker-engine
+
+docker_users: ['root']
+
+create_docker_registry: False
+docker_registry_url: "{{  ansible_fqdn }}"
+docker_registry_port: 443
+docker_registry_certs: none
+docker_registry_version: 2.4.0
+docker_registry_data_dir: "/tmp/registry"
+
+docker_use_proxy: False
+docker_use_gelf: False
+docker_storage_driver: devicemapper
+docker_expose_api: True
+
+docker_compose: True
+docker_compose_config_path: "/etc/compose"
+docker_compose_systemd_mode: combined
+
+systemd_docker: False

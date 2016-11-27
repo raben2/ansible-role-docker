@@ -1,0 +1,10 @@
+- name: checkout last compose release
+  git: 
+    repo: https://github.com/docker/compose.git
+    dest: /usr/src/compose
+    version: release
+
+- name: install docker compose
+  command: python setup.py install
+  args:
+    chdir: /usr/src/compose/

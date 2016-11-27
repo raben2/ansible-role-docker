@@ -1,0 +1,24 @@
+[Unit]
+Description={{ project }} docker stack
+Requires=docker.service
+After=docker.service
+Conflicts=shutdown.target reboot.target halt.targed
+
+[Service]
+Restart=always
+RestartSec=300
+Type=notify
+NotifyAccess=All
+TimeoutStartSec=240
+TimeoutStopSec=90
+
+ExecStartPre=/bin/docker-compose -f {{ compose_config_path }}/docker-compose.yaml rm -f
+ExecStartPre=/bin/docker-compose -f {{ compose_config_path }}/docker-compose.yaml pull
+
+ExecStart=/bin/docker-compose -f {{ compose_config_path }}/docker-compose.yaml up -d --force-recreate
+
+ExecStop=/bin/docker-compose -f {{ compose_config_path }}/docker-compose.yaml stop
+SocketGroup=docker
+
+[Install]
+WantedBy=multi-user.target

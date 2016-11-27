@@ -1,0 +1,19 @@
+---
+- include_vars: defaults/main.yaml
+- name: RHEL specific variables
+  include_vars: rhel.yaml 
+  when: "ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'"
+- name: DEB specific Variables
+  include_vars: deb.yaml
+  when: "ansible_os_family == 'Debian'"
+- name: install docker-engine
+  include: tasks/install.yaml
+- name: install docker-compose
+  include: tasks/get_compose.yaml
+  when: "{{ docker_compose |bool }}"
+- name: Create docker registry
+  include: tasks/registry.yaml
+  when: "{{ create_docker_registry |bool }}"
+- name: Install systemd-docker
+  include: tasks/systemd_docker.yaml
+  when: "{{ systemd_docker |bool }}"

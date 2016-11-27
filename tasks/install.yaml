@@ -1,0 +1,76 @@
+---
+- name: install docker-engine repo
+  template:
+    dest: "/etc/{{ repo_file }}"
+    owner: root
+    group: root
+    src: "{{ repo_template }}"
+
+- name: install cleanup script
+  copy:
+    dest: /usr/sbin/docker_clean.sh
+    src: cleanup_docker.sh
+    owner: root
+    group: docker
+    mode: 0764
+- name: install docker socket
+  copy:
+    dest: /usr/lib/systemd/system/docker.socket
+    src: docker.socket
+    owner: root
+    group: docker
+    mode: 0764
+
+- name: create service configuration dir
+  file:
+    dest: /etc/systemd/system/docker.service.d/
+    state: directory
+    mode: 0644
+    owner: root
+    group: docker
+
+- name: create service configuration file
+  template:
+    dest: /etc/systemd/system/docker.service.d/docker.conf
+    src: service.docker.conf.j2
+    owner: root
+    group: docker
+  register: docker_service
+
+- name: Install docker
+  yum:
+    name: "{{ docker_pkg }}"
+    state: installed
+  register: docker_installed
+  when: 
+    - (ansible_os_family == "RedHat")
+
+- name: Install docker
+  apt:
+    name: "{{ docker_pkg }}"
+    state: installed
+    update_cache: yes
+    force:
+  register: docker_installed
+  when: 
+    - (ansible_os_family == "Debian")
+
+- name: Install python lib
+  pip: 
+    name: docker-py
+    state: latest
+
+- name: start docker.socket
+  systemd:
+    name: docker.socket
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+- name: start docker service
+  systemd:
+    name: docker
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+  when: "{{ docker_service |changed }}"

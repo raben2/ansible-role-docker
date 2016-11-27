@@ -1,0 +1,2 @@
+repo_template: docker.repo.j2
+repo_file: yum.repos.d/docker.repo

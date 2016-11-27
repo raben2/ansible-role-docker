@@ -1,0 +1,17 @@
+[Service]
+{% if docker_use_proxy %}
+environment="HTTPS_PROXY=http://{{ http_proxy }}:{{ http_proxy_port }}/" "HTTP_PROXY=http://1{{ http_proxy }}:{{ http_proxy_port }}/" "NO_PROXY={{ no_proxy_networks }}"
+{% endif %}
+ExecStart=
+ExecStart=/usr/bin/docker daemon -H fd:// -H tcp://0.0.0.0:2375 \
+                          --ip=0.0.0.0 
+{% if docker_use_gelf %} \
+                          --log-driver gelf \
+                          --log-opt gelf-address=udp://10.16.7.110:12203 \
+{% endif %}
+{% if docker_storage_driver == 'devicemapper' %}
+                          --storage-driver=devicemapper \
+                          --storage-opt dm.use_deferred_removal=true \
+                          --storage-opt dm.mountopt=discard
+{% endif %}
+                          

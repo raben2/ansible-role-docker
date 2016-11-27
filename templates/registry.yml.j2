@@ -1,0 +1,34 @@
+version: 0.1
+log:
+  level: info
+  formatter: text
+  fields:
+    service: registry
+    environment: {{ env }}
+storage:
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /registry
+    maxthreads: 100
+http:
+  addr: {{ docker_registry_domain }}:{{ docker_registry_port }}
+  headers:
+    X-Content-Type-Options: [nosniff]
+delete:
+    enabled: true
+redirect:
+    disable: true
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
+maintenance:
+    uploadpurging:
+      enabled: true
+      age: 2190h
+      interval: 24h
+      dryrun: false
+readonly:
+      enabled: false

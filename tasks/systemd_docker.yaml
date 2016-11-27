@@ -1,0 +1,34 @@
+---
+- name: get systemd docker release
+  git: 
+    repo: https://github.com/ibuildthecloud/systemd-docker.git
+    dest: "{{ gopath }}/systemd-docker"
+
+- name: get dependent packages
+  command: go get
+  args:
+    chdir: "/root/go/systemd-docker"
+  environment: 
+    GOPATH: "{{ gopath }}"
+  ignore_errors: True
+
+- name: install systemd docker
+  command: go build
+  args:
+    chdir: "{{ gopath }}/systemd-docker"
+  environment:
+    GOPATH: "{{ gopath }}"
+
+- name: move systemd-docker executable
+  copy:
+    src: "{{ gopath }}/systemd-docker/systemd-docker"
+    dest: /usr/sbin/systemd-docker
+    remote_src: True
+    owner: root
+    group: docker
+    mode: 0775
+
+- name: add sudoers file
+  template:
+    src: sudoers_docker.j2
+    dest: "/etc/sudoers.d/docker_systemd"

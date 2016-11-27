@@ -1,0 +1,7 @@
+{% if useproxy |bool %}
+alias go="http_proxy={{ proxy_http }} go"
+{% endif %}
+export GOROOT={{ goroot }}
+export GOBIN={{ gobin }}
+export PATH={{ go_bin_path }}
+export GOPATH={{ gopath }}
