@@ -9,7 +9,7 @@ docker_registry_certs: none
 docker_registry_version: 2.4.0
 docker_registry_data_dir: "/tmp/registry"
 
-docker_use_proxy: False
+docker_use_proxy: True
 docker_use_gelf: False
 docker_storage_driver: devicemapper
 docker_expose_api: True

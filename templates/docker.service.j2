@@ -6,7 +6,6 @@ Requires=docker.socket
 
 [Service]
 Type=notify
-Environment=no_proxy=$no_proxy
 # the default is not to use systemd for cgroups because the delegate issues still
 # exists and systemd currently does not support the cgroup feature set required
 # for containers run by docker
